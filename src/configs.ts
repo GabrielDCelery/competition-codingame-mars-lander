@@ -16,6 +16,6 @@ export interface MarsLanderAIConfig {
 
 export default {
     [MarsLanderStateName.Landing]: {
-        monteCarlo: { maxTimetoSpend: 90, cConst: 5, maxRolloutSteps: 10 },
+        monteCarlo: { maxTimetoSpend: 90, cConst: 5, maxRolloutSteps: 5 },
     },
 };

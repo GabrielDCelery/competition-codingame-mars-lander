@@ -3,6 +3,7 @@ import { ITerrain } from '../entities/terrain';
 import { FsmState, MarsLanderStateName } from './fsm-states/types';
 import LandingState from './fsm-states/landing-state';
 import { MarsLanderAIConfig } from '../configs';
+import gameStateInterpreter, { IGameState } from '../interpreters/game-state-interpreter';
 
 export class MarsLanderAI {
     private marsLander: IMarsLander;
@@ -18,12 +19,16 @@ export class MarsLanderAI {
         this.setCurrentFsmState(MarsLanderStateName.Landing);
     }
 
-    private getNextFsmStateName(): MarsLanderStateName {
-        return MarsLanderStateName.Landing;
+    private getNextFsmStateName(gameState: IGameState): MarsLanderStateName {
+        const { marsLander, terrain } = gameState;
+        if (gameStateInterpreter.isAboveLandingZone({ marsLander, terrain })) {
+            return MarsLanderStateName.Landing;
+        }
+        throw new Error('This shouldnt have happened');
     }
 
-    private setCurrentFsmState(fsmStateName: MarsLanderStateName): void {
-        this.currentFsmStateName = fsmStateName;
+    private setCurrentFsmState(nextFsmStateName: MarsLanderStateName): void {
+        this.currentFsmStateName = nextFsmStateName;
 
         switch (this.currentFsmStateName) {
             case MarsLanderStateName.Landing: {
@@ -41,7 +46,10 @@ export class MarsLanderAI {
     }
 
     createCommandForNextTick(): MarsLanderCommand {
-        const nextFsmStateName = this.getNextFsmStateName();
+        const nextFsmStateName = this.getNextFsmStateName({
+            marsLander: this.marsLander,
+            terrain: this.terrain,
+        });
         if (nextFsmStateName !== this.currentFsmStateName) {
             this.setCurrentFsmState(nextFsmStateName);
         }

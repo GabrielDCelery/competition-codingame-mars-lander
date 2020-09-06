@@ -10,6 +10,7 @@ import MCSearch, {
 import gameStateInterpreter, { IGameState } from '../../interpreters/game-state-interpreter';
 import { MarsLanderFsmStateConfig } from '../../configs';
 import * as utility from '../../generic-algorithms/utility-helpers';
+import { LANDING_SPEED_LIMIT_X } from '../../consts';
 
 export default class LandingState implements FsmState {
     marsLander: IMarsLander;
@@ -33,10 +34,10 @@ export default class LandingState implements FsmState {
                 return command.angle === 0;
             }
             if (marsLander.state.speed.x > 0) {
-                return command.angle < 0;
+                return marsLander.state.angle <= command.angle;
             }
             if (marsLander.state.speed.x < 0) {
-                return command.angle > 0;
+                return command.angle <= marsLander.state.angle;
             }
             throw new Error('This shouldnt have happened');
         };
@@ -69,7 +70,7 @@ export default class LandingState implements FsmState {
         initialState,
         terminalState,
     }): number => {
-        const maxAllowedOffsetX = 20;
+        const maxAllowedOffsetX = LANDING_SPEED_LIMIT_X;
         const xCovered = Math.abs(
             initialState.marsLander.state.coordinates.x -
                 terminalState.marsLander.state.coordinates.x
@@ -88,11 +89,10 @@ export default class LandingState implements FsmState {
             value: xCovered <= maxAllowedOffsetX ? xCovered : maxAllowedOffsetX,
             max: maxAllowedOffsetX,
         });
-        const uDistanceY = utility.normalizedExponential({ value: yCovered, max: yToCover, a: 4 });
+        const uDistanceY = utility.normalizedExponential({ value: yCovered, max: yToCover });
         const uFuel = utility.normalizedExponentialDecay({
             value: fueldUsed,
             max: fuelAtStart,
-            a: 4,
         });
 
         return utility.average([uDistanceX, uDistanceY, uFuel]);

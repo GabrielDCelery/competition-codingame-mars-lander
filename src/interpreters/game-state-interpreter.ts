@@ -15,6 +15,7 @@ export interface IGameStateInterpreter {
     hasSuccessfullyLanded: (gameState: IGameState) => boolean;
     hasCrashed: (gameState: IGameState) => boolean;
     hasFlownOffTheMap: (gameState: IGameState) => boolean;
+    isAboveLandingZone(gameState: IGameState): boolean;
 }
 
 class GameStateInterpreter {
@@ -27,7 +28,7 @@ class GameStateInterpreter {
             LANDING_SPEED_LIMIT_Y * LANDING_SPEED_LIMIT_SAFETY_MULTIPLIER;
         this.landingSpeedLimitWithSafetyX =
             LANDING_SPEED_LIMIT_X * LANDING_SPEED_LIMIT_SAFETY_MULTIPLIER;
-        this.landingHitBoxY = LANDING_SPEED_LIMIT_Y * 0.5;
+        this.landingHitBoxY = LANDING_SPEED_LIMIT_Y * 0.3;
     }
 
     hasSuccessfullyLanded(gameState: IGameState): boolean {
@@ -60,6 +61,14 @@ class GameStateInterpreter {
     hasFlownOffTheMap(gameState: IGameState): boolean {
         const { marsLander, terrain } = gameState;
         return !terrain.areCoordinatesWithinBoundaries(marsLander.state.coordinates);
+    }
+
+    isAboveLandingZone(gameState: IGameState): boolean {
+        const { marsLander, terrain } = gameState;
+        return (
+            terrain.landingZone.start.x <= marsLander.state.coordinates.x &&
+            marsLander.state.coordinates.x <= terrain.landingZone.end.x
+        );
     }
 }
 

@@ -87,8 +87,8 @@ export class MarsLander implements IMarsLander {
         const validCommands: MarsLanderCommand[] = [];
 
         const validThrusts: number[] = [
-            this.state.thrust,
             Math.min(MAXIMUM_THRUST, this.state.thrust + MAXIMUM_THRUST_CHANGE_PER_TICK),
+            this.state.thrust,
             Math.max(MINIMUM_THRUST, this.state.thrust - MAXIMUM_THRUST_CHANGE_PER_TICK),
         ].filter((value, index, self) => self.indexOf(value) === index);
 
